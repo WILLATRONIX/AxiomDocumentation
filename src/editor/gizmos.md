@@ -2,7 +2,7 @@
 
 Gizmos are a common UI element which allows positioning within the 3D world.
 
-![Gizmo With All Elements](/src/img/gizmo.png)
+![Gizmo With All Elements](/img/gizmo.png)
 
 ## Gizmo Properties
 
