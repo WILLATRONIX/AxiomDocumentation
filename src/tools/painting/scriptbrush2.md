@@ -8,14 +8,14 @@ The Lua programming language is similar to Python, but is more lightweight. Henc
 
 ### Script Examples
 
+Even though the Script Brush can do almost anything, there are some things that it can't do so well. These include generating structures or anything that requires hard coding.
+
 - Terrain Generator
 - Texturing Brush
 - Rock Generator
 - Crop Painter
 - Spike Generator
 - Cave Generator
-
-Even though the Script Brush can do almost anything, there are some things that it can't do so well. These include generating structures or anything that requires hard coding.
 
 ## Tool Options
 
@@ -37,7 +37,7 @@ end
 
 ### blocks
 
-The blocks object (or table) allows for searching for Blockstate IDs. Blockstate IDs are numerical values used to represent a block state. You shouldn't use these values directly as it can get confusing. 
+The blocks object (or table) allows searching for Blockstate IDs. Blockstate IDs are numerical values used to represent a block state. You shouldn't use these values directly as it can get confusing. 
 
 Blockstate IDs are not the same as Block IDs.
 
@@ -87,20 +87,45 @@ highestBlock=getHighestBlockYAt(x,z)
 
 if highestBlock > 100 then
 -- checks if the highest block is above Y=100
-    setBlock(x,highestBlock,z,blocks.snow)
+    setBlock(x,highestBlock,z,blocks.snow_block)
+end
+```
+
+### withBlockProperty(`Blockstate ID`,`Property=Value`)
+
+The withBlockProperty function allows for adding properties to existing Blockstate IDs. This removes the limitation of using the [blocks object](#blocks) to set blocks in the world.
+
+```lua
+--Replaces wheat with its fully aged variant
+
+if getBlock(x,y,z)==blocks.wheat then
+    agedWheat=withBlockProperty(blocks.wheat,'age=7')
+
+    setBlock(x,y,z,agedWheat)
 end
 ```
 
 ### getBlockProperty(`Blockstate ID`,`Property`)
 
-The getBlockProperty function returns a value for the provided property. The function also requires 
+The getBlockProperty function returns the value for the provided Blockstate ID and Property. Block Properties[^note1] are attributes used by Minecraft to determine things like stair rotation and redstone power levels.
 
 ```lua
--- places blocks if on the surface
+--Checks if block can be waterlogged, and waterlogs it if possible
 
+currentBlock=getBlock(x,y,z)
 
+if getBlockProperty(currentBlock,'waterlogged')=='false' then
+    --Checks if the block isn't waterlogged. Only waterloggable blocks have this property
+
+    waterloggedBlock=withBlockProperty(currentBlock,'waterlogged=true')
+    --Gets the waterlogged variant of the current block
+    setBlock(x,y,z,waterloggedBlock)
+end
 ```
 
 ### getBlockState(x,y,z)
 
 Unlike [getBlock](#getblockxyz), this function returns the Blockstate ID for the block property, meaning stair directions can be used.
+
+## Notes
+[^note1]: [The Block Properties Wiki](https://minecraft.wiki/w/Block_properties)
