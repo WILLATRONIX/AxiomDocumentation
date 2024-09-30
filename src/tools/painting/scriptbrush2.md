@@ -8,7 +8,7 @@ The Lua programming language is similar to Python, but is more lightweight. Henc
 
 ### Script Examples
 
-Even though the Script Brush can do almost anything, there are some things that it can't do so well. These include generating structures or anything that requires hard coding.
+Even though the Script Brush can do almost anything, there are some things that it can't do so well. These include generating structures or anything that requires hard coding. The following examples may vary in difficulty.
 
 - Terrain Generator
 - Texturing Brush
@@ -39,7 +39,7 @@ end
 
 The blocks object (or table) allows searching for Blockstate IDs. Blockstate IDs are numerical values used to represent a block state. You shouldn't use these values directly as it can get confusing. 
 
-Blockstate IDs are not the same as Block IDs.
+> Blockstate IDs are not the same as Block IDs[^note1].
 
 ```lua
 dirt=blocks.coarse_dirt
@@ -51,7 +51,7 @@ Custom functions allow for further use of the two variables when combined.
 
 ### getBlock(x,y,z)
 
-Returns the Blockstate ID value for the given coordinate.
+Returns the Blockstate ID value for the given coordinate. This function **does not** return a Blockstate ID with block properties.
 
 In this example, I use `return` to place a block at the [Target Block](/tools/intro.md#target-blocks) position using `blocks.dirt`. Not to be confused with setBlock.
 
@@ -69,12 +69,28 @@ The setBlock function is another method to place blocks. Unlike using return, th
 An offset to the block placement can be added as it uses the XYZ variables. Using the setBlock function instead of return enables the ability to set more than one block for every Target Block process.
 
 ```lua
-myNiceCarpet=blocks.pink_carpet
+carpetFitForAKing=blocks.pink_carpet
 
 if getBlock(x,y-1,z)~=blocks.air and getBlock(x,y,z)==blocks.air then
     -- only allows blocks with an empty block above
-    setBlock(x,y,z,myNiceCarpet)
+    setBlock(x,y,z,carpetFitForAKing)
     -- changes the block at the target block position
+end
+```
+
+### isSolid(`Blockstate ID`)
+
+The isSolid function returns a boolean if the block has a solid collision box.
+
+```lua
+--Represents solid blocks with lime wool, everything else is represented with red glass
+
+currentBlock=getBlock(x,y,z)
+
+if isSolid(currentBlock) then
+    setBlock(x,y,z,blocks.lime_wool)
+else
+    setBlock(x,y,z,blocks.red_stained_glass)
 end
 ```
 
@@ -105,14 +121,34 @@ if getBlock(x,y,z)==blocks.wheat then
 end
 ```
 
-### getBlockProperty(`Blockstate ID`,`Property`)
+### getBlockState(x,y,z)
 
-The getBlockProperty function returns the value for the provided Blockstate ID and Property. Block Properties[^note1] are attributes used by Minecraft to determine things like stair rotation and redstone power levels.
+Unlike [getBlock](#getblockxyz), this function returns the exact Blockstate ID for the provided coordinate. 
 
 ```lua
---Checks if block can be waterlogged, and waterlogs it if possible
+--Replaces fully grown wheat with new wheat
 
-currentBlock=getBlock(x,y,z)
+currentBlockState=getBlockState(x,y,z)
+--gets the exact blockstate ID for the target block 
+
+agedWheat=withBlockProperty(blocks.wheat,'age=7')
+newWheat=withBlockProperty(blocks.wheat,'age=0')
+--defines fully aged wheat and new wheat
+
+if currentBlockState==agedWheat then
+--check if the target block is wheat with the age of 7
+    setBlock(x,y,z,newWheat)
+end
+```
+
+### getBlockProperty(`Blockstate ID`,`Property`)
+
+The getBlockProperty function returns the value for the provided Blockstate ID and Property. Block Properties[^note2] are attributes used by Minecraft to determine things like stair rotation and redstone power levels.
+
+```lua
+--Checks if the target block can be waterlogged, and waterlogs it if possible
+
+currentBlockState=getBlockState(x,y,z)
 
 if getBlockProperty(currentBlock,'waterlogged')=='false' then
     --Checks if the block isn't waterlogged. Only waterloggable blocks have this property
@@ -123,9 +159,8 @@ if getBlockProperty(currentBlock,'waterlogged')=='false' then
 end
 ```
 
-### getBlockState(x,y,z)
-
-Unlike [getBlock](#getblockxyz), this function returns the Blockstate ID for the block property, meaning stair directions can be used.
-
 ## Notes
-[^note1]: [The Block Properties Wiki](https://minecraft.wiki/w/Block_properties)
+
+[^note1]: [Block IDs](https://minecraft.wiki/w/Java_Edition_data_values/Pre-flattening) were swapped out in favour of the new Blockstate IDs in [1.13](https://minecraft.wiki/w/Java_Edition_1.13).
+
+[^note2]: [The Block Properties Wiki](https://minecraft.wiki/w/Block_properties)
